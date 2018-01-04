@@ -100,13 +100,18 @@ export class LocalStorageService {
     }
 
     public get<T>(key: string): T | string {
+
         if (!this.isSupported) {
             this.warnings.next(LOCAL_STORAGE_NOT_SUPPORTED);
             let item = this._cookieService.get(key);
             if (!item || item === 'null') {
                 return null;
             } else {
-                return JSON.parse(item);
+                try {
+                    return JSON.parse(item);
+                } catch (e) {
+                    return item;
+                }
             }
         }
 
@@ -130,7 +135,9 @@ export class LocalStorageService {
     public keys(): Array<string> {
         if (!this.isSupported) {
             this.warnings.next(LOCAL_STORAGE_NOT_SUPPORTED);
-            return [];
+            let keys: any = [];
+            keys = Object.keys(this._cookieService.getAll());
+            return keys;
         }
 
         let prefixLength = this.prefix.length;
